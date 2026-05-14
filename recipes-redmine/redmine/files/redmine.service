@@ -1,0 +1,29 @@
+[Unit]
+Description=Redmine
+Wants=network-online.target
+After=network-online.target redmine-storage-prepare.service
+Requires=redmine-storage-prepare.service
+RequiresMountsFor=/data
+
+[Service]
+Type=simple
+User=redmine
+Group=redmine
+WorkingDirectory=/opt/redmine
+EnvironmentFile=-/etc/default/redmine
+RuntimeDirectory=redmine
+ExecStartPre=/usr/bin/redmine-prepare
+ExecStart=/usr/bin/ruby /opt/redmine/bin/rails server -e production -b 0.0.0.0 -p 3000
+Restart=on-failure
+NoNewPrivileges=yes
+PrivateTmp=yes
+ProtectSystem=strict
+ProtectHome=yes
+ReadWritePaths=/data/redmine /data/log/redmine /run/redmine
+CapabilityBoundingSet=
+RestrictSUIDSGID=yes
+LockPersonality=yes
+MemoryDenyWriteExecute=yes
+
+[Install]
+WantedBy=multi-user.target

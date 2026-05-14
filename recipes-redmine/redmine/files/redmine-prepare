@@ -1,0 +1,72 @@
+#!/bin/sh
+set -eu
+
+. /etc/default/redmine
+
+RAILS="${REDMINE_HOME}/bin/rails"
+
+roles_table_exists() {
+    /usr/bin/ruby "${RAILS}" runner '
+        connection = ActiveRecord::Base.connection
+        unless connection.data_source_exists?("roles")
+          warn "Redmine database does not contain roles table"
+          warn "Configured database: #{ActiveRecord::Base.connection_db_config.database}"
+          warn "Existing tables: #{connection.data_sources.sort.join(", ")}"
+          exit 1
+        end
+    '
+}
+
+if [ ! -x "${RAILS}" ]; then
+    echo "Missing Redmine Rails launcher: ${RAILS}" >&2
+    exit 1
+fi
+
+if [ -d "${REDMINE_HOME}/public/assets.dist" ] && [ ! -e "${REDMINE_WRITABLE_DIR}/public/assets/.manifest.json" ]; then
+    cp -a "${REDMINE_HOME}/public/assets.dist/." "${REDMINE_WRITABLE_DIR}/public/assets/"
+fi
+
+if [ -s "${REDMINE_HOME}/Gemfile.lock.dist" ]; then
+    if [ ! -s "${REDMINE_WRITABLE_DIR}/Gemfile.lock" ]; then
+        cp -a "${REDMINE_HOME}/Gemfile.lock.dist" "${REDMINE_WRITABLE_DIR}/Gemfile.lock"
+    elif ! cmp -s "${REDMINE_HOME}/Gemfile.lock.dist" "${REDMINE_WRITABLE_DIR}/Gemfile.lock"; then
+        stale_lock="${REDMINE_WRITABLE_DIR}/Gemfile.lock.stale-$(date +%Y%m%d%H%M%S)"
+        mv "${REDMINE_WRITABLE_DIR}/Gemfile.lock" "${stale_lock}"
+        cp -a "${REDMINE_HOME}/Gemfile.lock.dist" "${REDMINE_WRITABLE_DIR}/Gemfile.lock"
+        echo "Replaced stale Redmine Gemfile.lock with packaged lockfile; old lockfile saved as ${stale_lock}" >&2
+    fi
+fi
+
+cd "${REDMINE_HOME}"
+
+if [ ! -s config/initializers/secret_token.rb ]; then
+    /usr/bin/ruby "${RAILS}" generate_secret_token
+fi
+
+DB_WAS_EMPTY=0
+if [ ! -s "${REDMINE_WRITABLE_DIR}/db/redmine.sqlite3" ]; then
+    DB_WAS_EMPTY=1
+fi
+DB_NEEDS_DEFAULTS="${DB_WAS_EMPTY}"
+
+/usr/bin/ruby "${RAILS}" db:migrate
+if ! roles_table_exists; then
+    failed_db="${REDMINE_WRITABLE_DIR}/db/redmine.sqlite3.failed-$(date +%Y%m%d%H%M%S)"
+    mv "${REDMINE_WRITABLE_DIR}/db/redmine.sqlite3" "${failed_db}" 2>/dev/null || true
+    DB_NEEDS_DEFAULTS=1
+    echo "Redmine migration did not create the roles table; moved incomplete database to ${failed_db} and retrying" >&2
+    /usr/bin/ruby "${RAILS}" db:migrate
+fi
+
+if ! roles_table_exists; then
+    echo "Redmine database schema is incomplete: roles table is missing" >&2
+    exit 1
+fi
+
+if [ "${DB_NEEDS_DEFAULTS}" -eq 1 ]; then
+    /usr/bin/ruby "${RAILS}" redmine:load_default_data
+fi
+
+if [ ! -e "${REDMINE_WRITABLE_DIR}/public/assets/.manifest.json" ]; then
+    /usr/bin/ruby "${RAILS}" assets:precompile
+fi

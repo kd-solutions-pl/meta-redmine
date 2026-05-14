@@ -1,0 +1,27 @@
+#!/bin/sh
+set -eu
+
+. /etc/default/redmine
+
+if ! grep -q ' /data ' /proc/mounts; then
+    echo "/data is not mounted; Redmine writable storage is unavailable" >&2
+    exit 1
+fi
+
+install -d \
+    "${REDMINE_WRITABLE_DIR}/files" \
+    "${REDMINE_WRITABLE_DIR}/tmp/cache" \
+    "${REDMINE_WRITABLE_DIR}/tmp/pids" \
+    "${REDMINE_WRITABLE_DIR}/tmp/sockets" \
+    "${REDMINE_WRITABLE_DIR}/public/assets" \
+    "${REDMINE_WRITABLE_DIR}/db" \
+    "${REDMINE_WRITABLE_DIR}/config" \
+    "${REDMINE_WRITABLE_DIR}/config/initializers" \
+    "${REDMINE_WRITABLE_DIR}/.cache" \
+    "${REDMINE_LOG_DIR}"
+
+if [ ! -s "${REDMINE_WRITABLE_DIR}/config/database.yml" ]; then
+    install -m 0640 -o redmine -g redmine /etc/redmine/database.yml "${REDMINE_WRITABLE_DIR}/config/database.yml"
+fi
+
+chown -R redmine:redmine "${REDMINE_WRITABLE_DIR}" "${REDMINE_LOG_DIR}"

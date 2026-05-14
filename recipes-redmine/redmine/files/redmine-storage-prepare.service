@@ -1,0 +1,21 @@
+[Unit]
+Description=Prepare Redmine writable storage
+RequiresMountsFor=/data
+Before=redmine.service
+
+[Service]
+Type=oneshot
+EnvironmentFile=-/etc/default/redmine
+ExecStart=/usr/bin/redmine-storage-prepare
+RemainAfterExit=yes
+NoNewPrivileges=yes
+PrivateTmp=yes
+ProtectSystem=strict
+ProtectHome=yes
+ReadWritePaths=/data
+RestrictSUIDSGID=yes
+LockPersonality=yes
+MemoryDenyWriteExecute=yes
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,3 @@
+production:
+  attachments_storage_path: @REDMINE_WRITABLE_DIR@/files
+  scm_stderr_log_file: @REDMINE_LOG_DIR@/scm_stderr.log
