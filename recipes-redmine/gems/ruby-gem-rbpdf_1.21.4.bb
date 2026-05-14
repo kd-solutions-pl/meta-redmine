@@ -1,0 +1,5 @@
+inherit ruby-gem
+GEM_NAME = "rbpdf"
+SRC_URI[sha256sum] = "8f281d03d04c71d061fa165eeb63bff0497c56ff12de0efe6bd9e5048d7de0c5"
+RDEPENDS:${PN} += "ruby-gem-htmlentities ruby-gem-rbpdf-font"
+
