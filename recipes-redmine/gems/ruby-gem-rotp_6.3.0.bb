@@ -1,0 +1,4 @@
+inherit ruby-gem
+GEM_NAME = "rotp"
+SRC_URI[sha256sum] = "75d40087e65ed0d8022c33055a6306c1c400d1c12261932533b5d6cbcd868854"
+
