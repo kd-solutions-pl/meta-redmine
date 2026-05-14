@@ -1,0 +1,4 @@
+inherit ruby-gem
+GEM_NAME = "marcel"
+SRC_URI[sha256sum] = "0d5649feb64b8f19f3d3468b96c680bae9746335d02194270287868a661516a4"
+
