@@ -1,0 +1,4 @@
+inherit ruby-gem
+GEM_NAME = "securerandom"
+SRC_URI[sha256sum] = "cc5193d414a4341b6e225f0cb4446aceca8e50d5e1888743fac16987638ea0b1"
+
