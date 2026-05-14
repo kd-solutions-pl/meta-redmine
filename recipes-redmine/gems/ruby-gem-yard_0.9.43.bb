@@ -1,0 +1,4 @@
+inherit ruby-gem
+GEM_NAME = "yard"
+SRC_URI[sha256sum] = "cf8733a8f0485df2a162927e9b5f182215a61f6d22de096b8f402c726a1c5821"
+
