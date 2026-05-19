@@ -1,0 +1,5 @@
+FILESEXTRAPATHS:prepend := "${THISDIR}/ruby:"
+
+PV = "4.0.5"
+
+SRC_URI[sha256sum] = "7d6149079a63f8ae1d326c9fa65c6019ba2dc3155eae7b39159817911c88958e"
