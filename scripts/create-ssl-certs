@@ -9,6 +9,8 @@ Usage:
 Options:
   --ca-dir DIR        Directory containing/receiving root-ca.key and root-ca.crt.
                       Default: ./redmine-root-ca
+  --ca-cn NAME        Root CA common name shown by Firefox. Default:
+                      Redmine development Root CA
   --out-dir DIR       Directory receiving redmine.key and redmine.crt.
                       Default: ./redmine-ssl
   --cn NAME           Server certificate common name. Default: localhost
@@ -27,6 +29,7 @@ EOF
 }
 
 ca_dir="./redmine-root-ca"
+ca_cn="Redmine development Root CA"
 out_dir="./redmine-ssl"
 cn="localhost"
 days="825"
@@ -40,6 +43,10 @@ while [ "$#" -gt 0 ]; do
     case "$1" in
         --ca-dir)
             ca_dir="$2"
+            shift 2
+            ;;
+        --ca-cn)
+            ca_cn="$2"
             shift 2
             ;;
         --out-dir)
@@ -116,7 +123,7 @@ if [ ! -s "${ca_key}" ] || [ ! -s "${ca_cert}" ]; then
         -sha256 \
         -days "${ca_days}" \
         -nodes \
-        -subj "/CN=Redmine development Root CA" \
+        -subj "/CN=${ca_cn}" \
         -addext "basicConstraints=critical,CA:TRUE,pathlen:1" \
         -addext "keyUsage=critical,keyCertSign,cRLSign" \
         -addext "subjectKeyIdentifier=hash" \
@@ -181,6 +188,7 @@ openssl verify -CAfile "${ca_cert}" "${server_cert}" >/dev/null
 
 cat <<EOF
 Created Redmine SSL files:
+  Root CA common name:                   ${ca_cn}
   Root CA certificate for Firefox import: ${ca_cert}
   Root CA private key:                   ${ca_key}
   Puma certificate:                      ${server_cert}
