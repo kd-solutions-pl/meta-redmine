@@ -39,8 +39,8 @@ fi
 # Set defaults for configuration variables
 PGENGINE=/usr/bin
 PGPORT=5432
-PGDATA=/var/lib/postgresql/data
-PGLOG=/var/lib/postgresql/pgstartup.log
+PGDATA=/data/postgresql/data
+PGLOG=/data/postgresql/pgstartup.log
 # Value to set as postmaster process's oom_adj
 PG_OOM_ADJ=-17
 
@@ -61,6 +61,7 @@ start(){
 	PSQL_START=$"Starting ${NAME} service: "
 
 	# Make sure startup-time log file is valid
+	install -d -m 700 -o postgres -g postgres "$(dirname "$PGLOG")" || exit 4
 	if [ ! -e "$PGLOG" -a ! -h "$PGLOG" ]
 	then
 		touch "$PGLOG" || exit 4
@@ -111,7 +112,7 @@ start(){
 	test x"$PG_OOM_ADJ" != x && echo "$PG_OOM_ADJ" > /proc/self/oom_score_adj
 	$SU -l postgres -c "$PGENGINE/pg_ctl start -D '$PGDATA' -s -o '-p $PGPORT' ${PGOPTS} -w -t 300" >> ${PGLOG}
 
-        pid=`su postgres -c "pg_ctl status -D /var/lib/postgresql/data" | grep "PID:" | grep -o [0-9]*`
+        pid=`su postgres -c "pg_ctl status -D '$PGDATA'" | grep "PID:" | grep -o [0-9]*`
 	if [ "x$pid" != x ]
 	then
 		echo -n " [ OK ]"

@@ -11,8 +11,8 @@ else
 fi
 
 PGENGINE=/usr/bin
-PGDATA=/var/lib/postgresql/data
-PGLOG=/var/lib/postgresql/pgstartup.log
+PGDATA=/data/postgresql/data
+PGLOG=/data/postgresql/pgstartup.log
 script_result=0
 
 initdb(){
@@ -24,6 +24,7 @@ initdb(){
 	script_result=1
     else
 	echo -n "Initializing database: "
+	install -d -m 700 -o postgres -g postgres "$(dirname "$PGDATA")" || exit 1
 	if [ ! -e "$PGDATA" -a ! -h "$PGDATA" ]
 	then
 		mkdir -p "$PGDATA" || exit 1

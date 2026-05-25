@@ -43,7 +43,6 @@ inherit autotools pkgconfig perlnative python3native python3targetconfig useradd
 CFLAGS += "-I${STAGING_INCDIR}/${PYTHON_DIR}"
 
 SYSTEMD_SERVICE:${PN} = "postgresql.service"
-SYSTEMD_AUTO_ENABLE:${PN} = "disable"
 
 pkg_postinst:${PN} () {
     if ${@bb.utils.contains('DISTRO_FEATURES', 'systemd sysvinit', 'true', 'false', d)}; then
@@ -228,7 +227,7 @@ FILES:${PN}-ptest += "${libdir}/${BPN}/regress.so"
 usernum = "28"
 groupnum = "28"
 USERADD_PACKAGES = "${PN}"
-USERADD_PARAM:${PN} = "-M -g postgres -o -r -d ${localstatedir}/lib/${BPN} \
+USERADD_PARAM:${PN} = "-M -g postgres -o -r -d /data/${BPN} \
     -s /bin/sh -c 'PostgreSQL Server' -u ${usernum} postgres"
 GROUPADD_PARAM:${PN} = "-g ${groupnum} -o -r postgres"
 
@@ -255,10 +254,6 @@ do_install:append() {
     install -m 0755 ${UNPACKDIR}/${BPN}.init ${D}${sysconfdir}/init.d/${BPN}-server
     sed -i -e "s/^PGVERSION=.*$/PGVERSION=${PV}/g" ${D}${sysconfdir}/init.d/${BPN}-server
     install -m 0755 ${UNPACKDIR}/${BPN}-setup ${D}${bindir}/${BPN}-setup
-    install -d -m 700 ${D}${localstatedir}/lib/${BPN}/data
-    install -d -m 700 ${D}${localstatedir}/lib/${BPN}/backups
-    install -m 644 ${UNPACKDIR}/${BPN}-profile ${D}${localstatedir}/lib/${BPN}/.profile
-    chown -R postgres:postgres ${D}${localstatedir}/lib/${BPN}
     # multiple server config directory
     install -d -m 700 ${D}${sysconfdir}/default/${BPN}
 
@@ -270,8 +265,6 @@ do_install:append() {
     # Install systemd unit files
     install -d ${D}${systemd_unitdir}/system
     install -m 0644 ${UNPACKDIR}/postgresql.service ${D}${systemd_unitdir}/system
-    sed -i -e 's,@BINDIR@,${bindir},g' \
-        ${D}${systemd_unitdir}/system/postgresql.service
     # Remove the build path
     if [ -f ${D}${libdir}/${BPN}/pgxs/src/Makefile.global ]; then
         sed -i -e 's#${RECIPE_SYSROOT}##g' \
@@ -314,8 +307,7 @@ RPROVIDES:${PN}-dbg += "libecpg-compat-dbg \
                        "
 
 FILES:${PN} += "${sysconfdir}/init.d/${BPN}-server \
-    ${localstatedir}/lib/${BPN}/data ${localstatedir}/lib/${BPN}/backups \
-    ${localstatedir}/lib/${BPN}/.profile ${sysconfdir}/default/${BPN} \
+    ${sysconfdir}/default/${BPN} \
     ${libdir}/${BPN}/dict_snowball.so ${libdir}/${BPN}/plpgsql.so \
     ${libdir}/${BPN}/euc2004_sjis2004.so \
     ${libdir}/${BPN}/libpqwalreceiver.so \

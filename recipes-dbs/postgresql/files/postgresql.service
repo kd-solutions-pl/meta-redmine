@@ -1,6 +1,7 @@
 [Unit]
 Description=PostgreSQL database server
 After=network.target
+RequiresMountsFor=/data
 
 [Service]
 Type=forking
@@ -11,14 +12,15 @@ Group=postgres
 Environment=PGPORT=5432
 
 # Location of database directory
-Environment=PGDATA=/var/lib/postgresql/data
+Environment=PGDATA=/data/postgresql/data
 
 # Disable OOM kill on the postmaster
 OOMScoreAdjust=-17
 
-ExecStart=@BINDIR@/pg_ctl start -D ${PGDATA} -s -o "-p ${PGPORT}" -w -t 300
-ExecStop=@BINDIR@/pg_ctl stop -D ${PGDATA} -s -m fast
-ExecReload=@BINDIR@/pg_ctl reload -D ${PGDATA} -s
+ExecStartPre=+/bin/sh -c 'test -f "$PGDATA/PG_VERSION" || exec /usr/bin/postgresql-setup initdb'
+ExecStart=/usr/bin/pg_ctl start -D ${PGDATA} -s -o "-p ${PGPORT}" -w -t 300
+ExecStop=/usr/bin/pg_ctl stop -D ${PGDATA} -s -m fast
+ExecReload=/usr/bin/pg_ctl reload -D ${PGDATA} -s
 
 # Give a reasonable amount of time for the server to start up/shut down
 TimeoutSec=300
