@@ -85,6 +85,7 @@ DEPENDS += " \
     ruby-gem-propshaft \
     ruby-gem-public-suffix \
     ruby-gem-puma \
+    ruby-gem-pg \
     ruby-gem-rack \
     ruby-gem-rack-session \
     ruby-gem-rack-test \
@@ -120,6 +121,7 @@ DEPENDS += " \
     ruby-gem-sqlite3 \
     ruby-gem-net-ldap \
     ruby-gem-mini-magick \
+    ruby-gem-pg \
 "
 
 RDEPENDS:${PN} = " \
@@ -145,6 +147,7 @@ RDEPENDS:${PN} = " \
     ruby-gem-ostruct \
     ruby-gem-propshaft \
     ruby-gem-puma \
+    ruby-gem-pg \
     ruby-gem-rack \
     ruby-gem-rails \
     ruby-gem-rbpdf \
