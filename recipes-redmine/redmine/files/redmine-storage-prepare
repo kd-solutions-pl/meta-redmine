@@ -17,6 +17,7 @@ install -d \
     "${REDMINE_WRITABLE_DIR}/db" \
     "${REDMINE_WRITABLE_DIR}/config" \
     "${REDMINE_WRITABLE_DIR}/config/initializers" \
+    "${REDMINE_WRITABLE_DIR}/config/ssl" \
     "${REDMINE_WRITABLE_DIR}/.cache" \
     "${REDMINE_LOG_DIR}"
 
