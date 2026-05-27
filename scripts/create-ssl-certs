@@ -1,0 +1,195 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+usage() {
+    cat >&2 <<'EOF'
+Usage:
+  create-redmine-ssl-certs [options]
+
+Options:
+  --ca-dir DIR        Directory containing/receiving root-ca.key and root-ca.crt.
+                      Default: ./redmine-root-ca
+  --out-dir DIR       Directory receiving redmine.key and redmine.crt.
+                      Default: ./redmine-ssl
+  --cn NAME           Server certificate common name. Default: localhost
+  --dns NAME          DNS subjectAltName. Can be repeated. Default: localhost
+  --ip ADDRESS        IP subjectAltName. Can be repeated. Default: 127.0.0.1
+  --days DAYS         Server certificate validity. Default: 825
+  --ca-days DAYS      Root CA validity. Default: 3650
+  --force-ca          Replace an existing root CA in --ca-dir.
+  --force-server      Replace existing redmine.key/redmine.crt in --out-dir.
+  -h, --help          Show this help.
+
+Examples:
+  create-redmine-ssl-certs --cn localhost --ip 127.0.0.1
+  create-redmine-ssl-certs --cn redmine.local --dns redmine.local --ip 192.168.7.2
+EOF
+}
+
+ca_dir="./redmine-root-ca"
+out_dir="./redmine-ssl"
+cn="localhost"
+days="825"
+ca_days="3650"
+force_ca=false
+force_server=false
+dns_names=()
+ip_addresses=()
+
+while [ "$#" -gt 0 ]; do
+    case "$1" in
+        --ca-dir)
+            ca_dir="$2"
+            shift 2
+            ;;
+        --out-dir)
+            out_dir="$2"
+            shift 2
+            ;;
+        --cn)
+            cn="$2"
+            shift 2
+            ;;
+        --dns)
+            dns_names+=("$2")
+            shift 2
+            ;;
+        --ip)
+            ip_addresses+=("$2")
+            shift 2
+            ;;
+        --days)
+            days="$2"
+            shift 2
+            ;;
+        --ca-days)
+            ca_days="$2"
+            shift 2
+            ;;
+        --force-ca)
+            force_ca=true
+            shift
+            ;;
+        --force-server)
+            force_server=true
+            shift
+            ;;
+        -h|--help)
+            usage
+            exit 0
+            ;;
+        *)
+            echo "Unknown option: $1" >&2
+            usage
+            exit 2
+            ;;
+    esac
+done
+
+if ! command -v openssl >/dev/null 2>&1; then
+    echo "openssl is required" >&2
+    exit 1
+fi
+
+if [ "${#dns_names[@]}" -eq 0 ] && [ "${#ip_addresses[@]}" -eq 0 ]; then
+    dns_names=("localhost")
+    ip_addresses=("127.0.0.1")
+fi
+
+mkdir -p "${ca_dir}" "${out_dir}"
+
+ca_key="${ca_dir}/root-ca.key"
+ca_cert="${ca_dir}/root-ca.crt"
+server_key="${out_dir}/redmine.key"
+server_cert="${out_dir}/redmine.crt"
+server_csr="${out_dir}/redmine.csr"
+server_ext="${out_dir}/redmine.ext"
+
+if [ "${force_ca}" = true ]; then
+    rm -f "${ca_key}" "${ca_cert}" "${ca_cert}.srl"
+fi
+
+if [ ! -s "${ca_key}" ] || [ ! -s "${ca_cert}" ]; then
+    openssl req \
+        -x509 \
+        -newkey rsa:4096 \
+        -sha256 \
+        -days "${ca_days}" \
+        -nodes \
+        -subj "/CN=Redmine development Root CA" \
+        -addext "basicConstraints=critical,CA:TRUE,pathlen:1" \
+        -addext "keyUsage=critical,keyCertSign,cRLSign" \
+        -addext "subjectKeyIdentifier=hash" \
+        -keyout "${ca_key}" \
+        -out "${ca_cert}"
+    chmod 0600 "${ca_key}"
+    chmod 0644 "${ca_cert}"
+fi
+
+if [ "${force_server}" = true ]; then
+    rm -f "${server_key}" "${server_cert}" "${server_csr}" "${server_ext}" "${ca_cert}.srl"
+fi
+
+if [ -e "${server_key}" ] || [ -e "${server_cert}" ]; then
+    echo "Server certificate files already exist in ${out_dir}; use --force-server to replace them" >&2
+    exit 1
+fi
+
+{
+    echo "basicConstraints=critical,CA:FALSE"
+    echo "keyUsage=critical,digitalSignature,keyEncipherment"
+    echo "extendedKeyUsage=serverAuth"
+    echo "subjectAltName=@alt_names"
+    echo
+    echo "[alt_names]"
+    index=1
+    for dns_name in "${dns_names[@]}"; do
+        echo "DNS.${index}=${dns_name}"
+        index=$((index + 1))
+    done
+    index=1
+    for ip_address in "${ip_addresses[@]}"; do
+        echo "IP.${index}=${ip_address}"
+        index=$((index + 1))
+    done
+} > "${server_ext}"
+
+openssl req \
+    -newkey rsa:2048 \
+    -sha256 \
+    -nodes \
+    -subj "/CN=${cn}" \
+    -keyout "${server_key}" \
+    -out "${server_csr}"
+
+openssl x509 \
+    -req \
+    -in "${server_csr}" \
+    -CA "${ca_cert}" \
+    -CAkey "${ca_key}" \
+    -CAcreateserial \
+    -sha256 \
+    -days "${days}" \
+    -extfile "${server_ext}" \
+    -out "${server_cert}"
+
+rm -f "${server_csr}" "${server_ext}" "${ca_cert}.srl"
+chmod 0600 "${server_key}"
+chmod 0644 "${server_cert}"
+
+openssl verify -CAfile "${ca_cert}" "${server_cert}" >/dev/null
+
+cat <<EOF
+Created Redmine SSL files:
+  Root CA certificate for Firefox import: ${ca_cert}
+  Root CA private key:                   ${ca_key}
+  Puma certificate:                      ${server_cert}
+  Puma private key:                      ${server_key}
+
+Upload to target:
+  ${server_cert} -> /data/redmine/config/ssl/redmine.crt
+  ${server_key}  -> /data/redmine/config/ssl/redmine.key
+
+Import this into Firefox Authorities:
+  ${ca_cert}
+EOF
