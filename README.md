@@ -64,6 +64,13 @@ database settings from:
 ```
 /data/redmine/config/database.yml
 ```
+Redmine reads its application configuration from the writable runtime file:
+```
+/data/redmine/config/configuration.yml
+```
+```
+Put local settings such as SMTP credentials in `/data/redmine/config/configuration.yml`.
+
 Create or update the PostgreSQL role and database for Redmine:
 ```
 pg-redmine-db-setup "your-redmine-db-password"
