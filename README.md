@@ -57,6 +57,43 @@ Note: Instruction is aplicable for `redmine-image-albertow`.
 Use [run-qemu](https://github.com/kd-solutions-pl/albertow/meta-albertow/scripts/run-qemu) to boot a built image with a read-only
 squashfs root filesystem and a persistent ext4 data disk mounted by the image
 at `/data`. Read instructions how to run generated images with QEMU under [albertow](https://github.com/kd-solutions-pl/albertow) repo
+### Use the PostgreSQL instance from redmine-albertow-image
+`redmine-albertow-image` includes a local PostgreSQL server. PostgreSQL stores
+its database cluster under `/data/postgresql/data`, and Redmine reads its
+database settings from:
+```
+/data/redmine/config/database.yml
+```
+Create or update the PostgreSQL role and database for Redmine:
+```
+pg-redmine-db-setup "your-redmine-db-password"
+```
+The helper creates or updates the `redmine` PostgreSQL role and creates the
+`redmine` database if it does not already exist.
+
+Then configure `/data/redmine/config/database.yml`:
+```
+production:
+  adapter: postgresql
+  encoding: unicode
+  database: redmine
+  host: localhost
+  port: 5432
+  username: redmine
+  password: "your-redmine-db-password"
+```
+Restart Redmine after changing the database configuration:
+```
+systemctl restart redmine.service
+```
+
+To change the PostgreSQL password later, run the setup helper again with the
+new password, update `/data/redmine/config/database.yml` to match, then restart
+Redmine:
+```
+pg-redmine-db-setup "new-redmine-db-password"
+systemctl restart redmine.service
+```
 ### Update certificates on the target
 Copy the generated server certificate and key to the target data partition:
 ```
