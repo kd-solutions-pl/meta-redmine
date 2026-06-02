@@ -22,7 +22,11 @@ install -d \
     "${REDMINE_LOG_DIR}"
 
 if [ ! -s "${REDMINE_WRITABLE_DIR}/config/database.yml" ]; then
-    install -m 0640 -o redmine -g redmine /etc/redmine/database.yml "${REDMINE_WRITABLE_DIR}/config/database.yml"
+    install -m 0640 -o redmine -g redmine /usr/share/redmine/defaults/database.yml "${REDMINE_WRITABLE_DIR}/config/database.yml"
+fi
+
+if [ ! -s "${REDMINE_WRITABLE_DIR}/config/configuration.yml" ]; then
+    install -m 0640 -o redmine -g redmine /usr/share/redmine/defaults/configuration.yml "${REDMINE_WRITABLE_DIR}/config/configuration.yml"
 fi
 
 chown -R redmine:redmine "${REDMINE_WRITABLE_DIR}" "${REDMINE_LOG_DIR}"

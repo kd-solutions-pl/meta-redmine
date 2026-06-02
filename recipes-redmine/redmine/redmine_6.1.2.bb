@@ -190,7 +190,7 @@ generate_redmine_gemfile_lock() {
     rm -rf ${lockdir}
     install -d ${lockdir}/app/config ${lock_gems}
     install -m 0644 ${D}${REDMINE_HOME}/Gemfile ${lockdir}/app/Gemfile
-    install -m 0644 ${D}${sysconfdir}/redmine/database.yml ${lockdir}/app/config/database.yml
+    install -m 0644 ${D}${datadir}/redmine/defaults/database.yml ${lockdir}/app/config/database.yml
 
     find ${RECIPE_SYSROOT}${libdir}/ruby/gems -path '*/specifications/*.gemspec' -type f | while read spec; do
         rel=${spec#${RECIPE_SYSROOT}${libdir}/ruby/gems/}
@@ -230,14 +230,14 @@ do_install() {
     install -d ${D}${sysconfdir}/default
     install -m 0644 ${UNPACKDIR}/redmine.env ${D}${sysconfdir}/default/redmine
 
-    install -d ${D}${sysconfdir}/redmine
-    install -m 0640 ${UNPACKDIR}/database.yml ${D}${sysconfdir}/redmine/database.yml
-    install -m 0640 ${UNPACKDIR}/configuration.yml ${D}${sysconfdir}/redmine/configuration.yml
+    install -d ${D}${datadir}/redmine/defaults
+    install -m 0644 ${UNPACKDIR}/database.yml ${D}${datadir}/redmine/defaults/database.yml
+    install -m 0644 ${UNPACKDIR}/configuration.yml ${D}${datadir}/redmine/defaults/configuration.yml
     install -m 0644 ${UNPACKDIR}/additional_environment.rb ${D}${REDMINE_HOME}/config/additional_environment.rb
     ln -snf ${REDMINE_WRITABLE_DIR}/config/database.yml ${D}${REDMINE_HOME}/config/database.yml
-    ln -snf ${sysconfdir}/redmine/configuration.yml ${D}${REDMINE_HOME}/config/configuration.yml
+    ln -snf ${REDMINE_WRITABLE_DIR}/config/configuration.yml ${D}${REDMINE_HOME}/config/configuration.yml
 
-    for file in ${sysconfdir}/default/redmine ${sysconfdir}/redmine/database.yml ${sysconfdir}/redmine/configuration.yml ${REDMINE_HOME}/config/additional_environment.rb
+    for file in ${sysconfdir}/default/redmine ${datadir}/redmine/defaults/database.yml ${datadir}/redmine/defaults/configuration.yml ${REDMINE_HOME}/config/additional_environment.rb
     do
         sed -i \
             -e 's|@REDMINE_HOME@|${REDMINE_HOME}|g' \
@@ -261,13 +261,12 @@ do_install() {
     install -d ${D}${bindir}
     install -m 0755 ${UNPACKDIR}/redmine-prepare ${D}${bindir}/redmine-prepare
     install -m 0755 ${UNPACKDIR}/redmine-storage-prepare ${D}${bindir}/redmine-storage-prepare
-    install -d ${D}${datadir}/redmine
     install -d ${D}${systemd_system_unitdir}
     install -m 0644 ${UNPACKDIR}/redmine.service ${D}${systemd_system_unitdir}/redmine.service
     install -m 0644 ${UNPACKDIR}/redmine-storage-prepare.service ${D}${systemd_system_unitdir}/redmine-storage-prepare.service
-    chown -R redmine:redmine "${D}${sysconfdir}/redmine" "${D}/${REDMINE_HOME}"
+    chown -R redmine:redmine "${D}/${REDMINE_HOME}"
 
 }
 
-FILES:${PN} += "${REDMINE_HOME} ${sysconfdir}/redmine ${sysconfdir}/default/redmine ${bindir}/redmine-prepare ${bindir}/redmine-storage-prepare"
-CONFFILES:${PN} += "${sysconfdir}/redmine/database.yml ${sysconfdir}/redmine/configuration.yml ${sysconfdir}/default/redmine"
+FILES:${PN} += "${REDMINE_HOME} ${datadir}/redmine ${sysconfdir}/default/redmine ${bindir}/redmine-prepare ${bindir}/redmine-storage-prepare"
+CONFFILES:${PN} += "${sysconfdir}/default/redmine"
