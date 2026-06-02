@@ -68,7 +68,6 @@ Redmine reads its application configuration from the writable runtime file:
 ```
 /data/redmine/config/configuration.yml
 ```
-```
 Put local settings such as SMTP credentials in `/data/redmine/config/configuration.yml`.
 
 Create or update the PostgreSQL role and database for Redmine:
