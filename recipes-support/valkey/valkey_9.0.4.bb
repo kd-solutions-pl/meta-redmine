@@ -8,6 +8,7 @@ DEPENDS = "readline lua ncurses"
 
 SRC_URI = "git://github.com/valkey-io/valkey.git;branch=9.0;protocol=https;tag=${PV} \
            file://valkey.conf \
+           file://90-valkey.conf \
            file://init-valkey-server \
            file://valkey.service \
            file://lua-update-Makefile-to-use-environment-build-setting.patch \
@@ -50,6 +51,8 @@ do_install() {
     oe_runmake install
     install -d ${D}/${sysconfdir}/valkey
     install -m 0644 ${UNPACKDIR}/valkey.conf ${D}/${sysconfdir}/valkey/valkey.conf
+    install -d ${D}/${sysconfdir}/sysctl.d
+    install -m 0644 ${UNPACKDIR}/90-valkey.conf ${D}/${sysconfdir}/sysctl.d/90-valkey.conf
     install -d ${D}/${sysconfdir}/init.d
     install -m 0755 ${UNPACKDIR}/init-valkey-server ${D}/${sysconfdir}/init.d/valkey-server
     install -d ${D}/var/lib/valkey/
@@ -60,8 +63,9 @@ do_install() {
     sed -i 's!/usr/sbin/!${sbindir}/!g' ${D}${systemd_system_unitdir}/valkey.service
 
     if ${@bb.utils.contains('DISTRO_FEATURES', 'systemd', 'true', 'false', d)}; then
-        sed -i 's!daemonize yes!# daemonize yes!' ${D}/${sysconfdir}/valkey/valkey.conf
-        sed -i 's!supervised no!supervised systemd!' ${D}/${sysconfdir}/valkey/valkey.conf
+        sed -i 's!^daemonize yes!daemonize no!' ${D}/${sysconfdir}/valkey/valkey.conf
+        sed -i 's!^supervised no!supervised systemd!' ${D}/${sysconfdir}/valkey/valkey.conf
+        sed -i 's!^pidfile /var/run/valkey.pid!# pidfile /var/run/valkey.pid!' ${D}/${sysconfdir}/valkey/valkey.conf
     fi
 }
 

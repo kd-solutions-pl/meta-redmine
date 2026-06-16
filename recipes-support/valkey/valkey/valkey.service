@@ -3,14 +3,16 @@ Description=Valkey: an open source, in-memory data store
 After=network.target
 
 [Service]
+Type=notify
 User=valkey
 Group=valkey
 ExecStart=/usr/bin/valkey-server /etc/valkey/valkey.conf
 ExecStop=/usr/bin/valkey-cli shutdown
 Restart=always
+TimeoutStartSec=infinity
+TimeoutStopSec=infinity
 LimitNOFILE=10032
 StateDirectory=valkey
 
 [Install]
 WantedBy=multi-user.target
-
