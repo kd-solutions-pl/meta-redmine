@@ -6,7 +6,8 @@ Requires=valkey.service redmine-storage-prepare.service
 RequiresMountsFor=/data
 
 [Service]
-Type=simple
+Type=notify
+NotifyAccess=all
 User=redmine
 Group=redmine
 WorkingDirectory=/opt/redmine
@@ -14,6 +15,7 @@ EnvironmentFile=-/etc/default/redmine
 RuntimeDirectory=redmine-sidekiq
 ExecStart=/usr/bin/sidekiq --environment production --require /opt/redmine --queue default --queue mailers
 Restart=on-failure
+WatchdogSec=10
 NoNewPrivileges=yes
 PrivateTmp=yes
 ProtectSystem=strict
