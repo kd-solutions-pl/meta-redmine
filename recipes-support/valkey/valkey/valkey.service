@@ -1,18 +1,21 @@
 [Unit]
 Description=Valkey: an open source, in-memory data store
 After=network.target
+RequiresMountsFor=/data
 
 [Service]
 Type=notify
 User=valkey
 Group=valkey
+ExecStartPre=+/usr/bin/mkdir -p /data/valkey
+ExecStartPre=+/usr/bin/chown valkey:valkey /data/valkey
+ExecStartPre=+/usr/bin/chmod 0755 /data/valkey
 ExecStart=/usr/bin/valkey-server /etc/valkey/valkey.conf
 ExecStop=/usr/bin/valkey-cli shutdown
 Restart=always
 TimeoutStartSec=infinity
 TimeoutStopSec=infinity
 LimitNOFILE=10032
-StateDirectory=valkey
 
 [Install]
 WantedBy=multi-user.target

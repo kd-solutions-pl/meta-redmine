@@ -22,6 +22,8 @@ RPROVIDES:${PN} = "virtual-redis"
 
 inherit pkgconfig update-rc.d systemd useradd
 
+VALKEY_DATA_DIR = "/data/valkey"
+
 TARGET_LDFLAGS:append = " ${DEBUG_PREFIX_MAP}"
 
 FINAL_LIBS:x86:toolchain-clang = "-latomic"
@@ -33,7 +35,7 @@ FINAL_LIBS:powerpc = "-latomic"
 export FINAL_LIBS
 
 USERADD_PACKAGES = "${PN}"
-USERADD_PARAM:${PN}  = "--system --home-dir /var/lib/valkey -g valkey --shell /bin/false valkey"
+USERADD_PARAM:${PN}  = "--system --home-dir ${VALKEY_DATA_DIR} -g valkey --no-create-home --shell /bin/false valkey"
 GROUPADD_PARAM:${PN} = "--system valkey"
 
 PACKAGECONFIG = "${@bb.utils.filter('DISTRO_FEATURES', 'systemd', d)}"
@@ -55,8 +57,6 @@ do_install() {
     install -m 0644 ${UNPACKDIR}/90-valkey.conf ${D}/${sysconfdir}/sysctl.d/90-valkey.conf
     install -d ${D}/${sysconfdir}/init.d
     install -m 0755 ${UNPACKDIR}/init-valkey-server ${D}/${sysconfdir}/init.d/valkey-server
-    install -d ${D}/var/lib/valkey/
-    chown valkey.valkey ${D}/var/lib/valkey/
 
     install -d ${D}${systemd_system_unitdir}
     install -m 0644 ${UNPACKDIR}/valkey.service ${D}${systemd_system_unitdir}
@@ -68,6 +68,7 @@ do_install() {
         sed -i 's!^pidfile /var/run/valkey.pid!# pidfile /var/run/valkey.pid!' ${D}/${sysconfdir}/valkey/valkey.conf
         sed -i 's!^syslog-enabled yes!syslog-enabled no!' ${D}/${sysconfdir}/valkey/valkey.conf
     fi
+    sed -i 's!^dir /var/lib/valkey/!dir ${VALKEY_DATA_DIR}/!' ${D}/${sysconfdir}/valkey/valkey.conf
 }
 
 
