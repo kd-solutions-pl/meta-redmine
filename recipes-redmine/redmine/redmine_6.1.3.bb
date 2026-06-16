@@ -59,7 +59,6 @@ DEPENDS += " \
     ruby-gem-date \
     ruby-gem-doorkeeper \
     ruby-gem-doorkeeper-i18n \
-    ruby-gem-drb \
     ruby-gem-erubi \
     ruby-gem-globalid \
     ruby-gem-html-pipeline \
