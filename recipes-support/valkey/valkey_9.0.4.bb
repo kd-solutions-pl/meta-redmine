@@ -66,6 +66,7 @@ do_install() {
         sed -i 's!^daemonize yes!daemonize no!' ${D}/${sysconfdir}/valkey/valkey.conf
         sed -i 's!^supervised no!supervised systemd!' ${D}/${sysconfdir}/valkey/valkey.conf
         sed -i 's!^pidfile /var/run/valkey.pid!# pidfile /var/run/valkey.pid!' ${D}/${sysconfdir}/valkey/valkey.conf
+        sed -i 's!^syslog-enabled yes!syslog-enabled no!' ${D}/${sysconfdir}/valkey/valkey.conf
     fi
 }
 
