@@ -5,6 +5,7 @@ require recipes-core/images/albertow-image.bb
 
 IMAGE_INSTALL:append = " \
     git \
+    ghostscript \
     postgresql \
     redmine \
 "

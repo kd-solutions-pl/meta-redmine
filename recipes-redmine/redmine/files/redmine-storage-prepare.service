@@ -1,7 +1,7 @@
 [Unit]
 Description=Prepare Redmine writable storage
 RequiresMountsFor=/data
-Before=redmine.service
+Before=redmine.service redmine-sidekiq.service
 
 [Service]
 Type=oneshot

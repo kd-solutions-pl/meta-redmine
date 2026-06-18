@@ -1,25 +1,26 @@
 [Unit]
-Description=Redmine
+Description=Redmine Sidekiq worker
 Wants=network-online.target
-After=network-online.target valkey.service redmine-storage-prepare.service
+After=network-online.target valkey.service redmine-storage-prepare.service redmine.service
 Requires=valkey.service redmine-storage-prepare.service
 RequiresMountsFor=/data
 
 [Service]
-Type=simple
+Type=notify
+NotifyAccess=all
 User=redmine
 Group=redmine
 WorkingDirectory=/opt/redmine
 EnvironmentFile=-/etc/default/redmine
-RuntimeDirectory=redmine
-ExecStartPre=/usr/bin/redmine-prepare
-ExecStart=/usr/bin/ruby /opt/redmine/bin/rails server -e production -b ssl://0.0.0.0:3000?key=${REDMINE_SSL_KEY}&cert=${REDMINE_SSL_CERT}
+RuntimeDirectory=redmine-sidekiq
+ExecStart=/usr/bin/sidekiq --environment production --require /opt/redmine --queue default --queue mailers
 Restart=on-failure
+WatchdogSec=10
 NoNewPrivileges=yes
 PrivateTmp=yes
 ProtectSystem=strict
 ProtectHome=yes
-ReadWritePaths=/data/redmine /data/log/redmine /run/redmine
+ReadWritePaths=/data/redmine /data/log/redmine /run/redmine-sidekiq
 CapabilityBoundingSet=
 RestrictSUIDSGID=yes
 LockPersonality=yes

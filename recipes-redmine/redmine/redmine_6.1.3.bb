@@ -6,16 +6,18 @@ LIC_FILES_CHKSUM = "file://doc/COPYING;md5=b234ee4d69f5fce4486a80fdaf4a4263"
 SRC_URI = "https://www.redmine.org/releases/redmine-${PV}.tar.gz \
            file://0001-Add-Ruby-4.0-to-supported-Ruby-versions-under-Yocto.patch \
            file://redmine.service \
+           file://redmine-sidekiq.service \
            file://redmine-storage-prepare.service \
            file://redmine-storage-prepare \
            file://redmine-prepare \
            file://redmine.env \
+           file://Gemfile.local \
            file://database.yml \
            file://configuration.yml \
            file://additional_environment.rb \
            file://strip-gemspec-native-extensions.rb \
            "
-SRC_URI[sha256sum] = "938e975e808ccfb4b0dcbad8b42f02aacf0ca9ef15491c38c5af4756740ccf08"
+SRC_URI[sha256sum] = "61db3008c7fd18a3afc559ed656fd38fdf8df8220ac69598b319095183190b7a"
 
 inherit systemd useradd
 
@@ -57,7 +59,6 @@ DEPENDS += " \
     ruby-gem-date \
     ruby-gem-doorkeeper \
     ruby-gem-doorkeeper-i18n \
-    ruby-gem-drb \
     ruby-gem-erubi \
     ruby-gem-globalid \
     ruby-gem-html-pipeline \
@@ -98,6 +99,7 @@ DEPENDS += " \
     ruby-gem-rbpdf \
     ruby-gem-rbpdf-font \
     ruby-gem-rdoc \
+    ruby-gem-redis-client \
     ruby-gem-requestjs-rails \
     ruby-gem-roadie \
     ruby-gem-roadie-rails \
@@ -108,6 +110,7 @@ DEPENDS += " \
     ruby-gem-rubyzip \
     ruby-gem-sanitize \
     ruby-gem-securerandom \
+    ruby-gem-sidekiq \
     ruby-gem-sqlite3 \
     ruby-gem-stimulus-rails \
     ruby-gem-thor \
@@ -126,6 +129,7 @@ DEPENDS += " \
 
 RDEPENDS:${PN} = " \
     coreutils \
+    valkey \
     ruby \
     tzdata-core \
     imagemagick \
@@ -151,6 +155,7 @@ RDEPENDS:${PN} = " \
     ruby-gem-rack \
     ruby-gem-rails \
     ruby-gem-rbpdf \
+    ruby-gem-redis-client \
     ruby-gem-requestjs-rails \
     ruby-gem-roadie-rails \
     ruby-gem-rotp \
@@ -158,6 +163,7 @@ RDEPENDS:${PN} = " \
     ruby-gem-rqrcode \
     ruby-gem-rubyzip \
     ruby-gem-sanitize \
+    ruby-gem-sidekiq \
     ruby-gem-stimulus-rails \
     ruby-gem-net-imap \
     ruby-gem-net-pop \
@@ -190,6 +196,7 @@ generate_redmine_gemfile_lock() {
     rm -rf ${lockdir}
     install -d ${lockdir}/app/config ${lock_gems}
     install -m 0644 ${D}${REDMINE_HOME}/Gemfile ${lockdir}/app/Gemfile
+    install -m 0644 ${D}${REDMINE_HOME}/Gemfile.local ${lockdir}/app/Gemfile.local
     install -m 0644 ${D}${datadir}/redmine/defaults/database.yml ${lockdir}/app/config/database.yml
 
     find ${RECIPE_SYSROOT}${libdir}/ruby/gems -path '*/specifications/*.gemspec' -type f | while read spec; do
@@ -220,7 +227,7 @@ generate_redmine_gemfile_lock() {
 
 USERADD_PACKAGES = "${PN}"
 USERADD_PARAM:${PN} = "-r --user-group -u 2000 -d ${REDMINE_HOME} --no-create-home --shell /usr/sbin/nologin redmine"
-SYSTEMD_SERVICE:${PN} = "redmine-storage-prepare.service redmine.service"
+SYSTEMD_SERVICE:${PN} = "redmine-storage-prepare.service redmine.service redmine-sidekiq.service"
 
 do_install() {
     install -d ${D}${REDMINE_HOME}
@@ -233,6 +240,7 @@ do_install() {
     install -d ${D}${datadir}/redmine/defaults
     install -m 0644 ${UNPACKDIR}/database.yml ${D}${datadir}/redmine/defaults/database.yml
     install -m 0644 ${UNPACKDIR}/configuration.yml ${D}${datadir}/redmine/defaults/configuration.yml
+    install -m 0644 ${UNPACKDIR}/Gemfile.local ${D}${REDMINE_HOME}/Gemfile.local
     install -m 0644 ${UNPACKDIR}/additional_environment.rb ${D}${REDMINE_HOME}/config/additional_environment.rb
     ln -snf ${REDMINE_WRITABLE_DIR}/config/database.yml ${D}${REDMINE_HOME}/config/database.yml
     ln -snf ${REDMINE_WRITABLE_DIR}/config/configuration.yml ${D}${REDMINE_HOME}/config/configuration.yml
@@ -263,6 +271,7 @@ do_install() {
     install -m 0755 ${UNPACKDIR}/redmine-storage-prepare ${D}${bindir}/redmine-storage-prepare
     install -d ${D}${systemd_system_unitdir}
     install -m 0644 ${UNPACKDIR}/redmine.service ${D}${systemd_system_unitdir}/redmine.service
+    install -m 0644 ${UNPACKDIR}/redmine-sidekiq.service ${D}${systemd_system_unitdir}/redmine-sidekiq.service
     install -m 0644 ${UNPACKDIR}/redmine-storage-prepare.service ${D}${systemd_system_unitdir}/redmine-storage-prepare.service
     chown -R redmine:redmine "${D}/${REDMINE_HOME}"
 
