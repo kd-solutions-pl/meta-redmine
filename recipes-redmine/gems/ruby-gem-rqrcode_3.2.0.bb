@@ -1,5 +1,4 @@
 inherit ruby-gem
 GEM_NAME = "rqrcode"
-SRC_URI[sha256sum] = "23eea88bb44c7ee6d6cab9354d08c287f7ebcdc6112e1fe7bcc2d010d1ffefc1"
+SRC_URI[sha256sum] = "64c1494ca6bb67d731330f38b50e3fd09eeab4f5dcd04b608e21218d1d0b9542"
 RDEPENDS:${PN} += "ruby-gem-chunky-png ruby-gem-rqrcode-core"
-
