@@ -1,0 +1,3 @@
+inherit ruby-gem
+GEM_NAME = "drb"
+SRC_URI[sha256sum] = "0b00d6fdb50995fe4a45dea13663493c841112e4068656854646f418fda13373"
