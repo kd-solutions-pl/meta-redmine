@@ -74,7 +74,6 @@ DEPENDS += " \
     ruby-gem-mini-magick \
     ruby-gem-mini-mime \
     ruby-gem-mini-portile2 \
-    ruby-gem-minitest \
     ruby-gem-net-imap \
     ruby-gem-net-ldap \
     ruby-gem-net-pop \
