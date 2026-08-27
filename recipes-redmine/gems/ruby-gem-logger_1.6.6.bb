@@ -1,4 +1,0 @@
-inherit ruby-gem
-GEM_NAME = "logger"
-SRC_URI[sha256sum] = "dd618d24e637715472732e7eed02e33cfbdf56deaad225edd0f1f89d38024017"
-
