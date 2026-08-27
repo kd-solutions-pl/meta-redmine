@@ -1,0 +1,3 @@
+inherit ruby-gem
+GEM_NAME = "rubyzip"
+SRC_URI[sha256sum] = "0a79e745b5c25872ebd148457df5665da8530ed8626c993b01457128f173ca02"
