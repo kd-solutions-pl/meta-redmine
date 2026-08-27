@@ -82,7 +82,6 @@ DEPENDS += " \
     ruby-gem-nokogiri \
     ruby-gem-ostruct \
     ruby-gem-pg \
-    ruby-gem-pp \
     ruby-gem-prettyprint \
     ruby-gem-prism \
     ruby-gem-propshaft \
