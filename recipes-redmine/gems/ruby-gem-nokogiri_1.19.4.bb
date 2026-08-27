@@ -7,4 +7,4 @@ GEM_INSTALL_ARGS = "-- --use-system-libraries --with-xml2-include=${STAGING_INCD
 do_install:append() {
     rm -rf ${D}${libdir}/ruby/gems/gems/${GEM_NAME}-${PV}/ext/nokogiri/ports
 }
-RDEPENDS:${PN} += "libxml2 libxslt ruby-gem-mini-portile2 ruby-gem-racc zlib"
+RDEPENDS:${PN} += "libxml2 libxslt ruby-gem-mini-portile2 zlib"

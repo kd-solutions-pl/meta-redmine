@@ -91,7 +91,6 @@ DEPENDS += " \
     ruby-gem-propshaft \
     ruby-gem-public-suffix \
     ruby-gem-puma \
-    ruby-gem-racc \
     ruby-gem-rack \
     ruby-gem-rack-session \
     ruby-gem-rack-test \
