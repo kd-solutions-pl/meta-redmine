@@ -101,7 +101,6 @@ DEPENDS += " \
     ruby-gem-rb-sys \
     ruby-gem-rbpdf \
     ruby-gem-rbpdf-font \
-    ruby-gem-rbs \
     ruby-gem-rdoc \
     ruby-gem-redis-client \
     ruby-gem-reline \
