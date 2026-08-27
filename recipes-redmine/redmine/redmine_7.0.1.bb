@@ -60,7 +60,6 @@ DEPENDS += " \
     ruby-gem-doorkeeper \
     ruby-gem-doorkeeper-i18n \
     ruby-gem-drb \
-    ruby-gem-erb \
     ruby-gem-erubi \
     ruby-gem-globalid \
     ruby-gem-htmlentities \
