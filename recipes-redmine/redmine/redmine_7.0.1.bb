@@ -83,7 +83,6 @@ DEPENDS += " \
     ruby-gem-ostruct \
     ruby-gem-pg \
     ruby-gem-prettyprint \
-    ruby-gem-prism \
     ruby-gem-propshaft \
     ruby-gem-public-suffix \
     ruby-gem-puma \
