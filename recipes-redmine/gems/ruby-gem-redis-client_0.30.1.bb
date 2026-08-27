@@ -1,4 +1,4 @@
 inherit ruby-gem
 GEM_NAME = "redis-client"
-SRC_URI[sha256sum] = "bff579db68dd7c59be8f9575a5825d8fb2a23944438f6e5e7e57e7ffddd34e50"
+SRC_URI[sha256sum] = "5151bc5c7bbfe48623732cdae3b900d8a22dc691cc7cdfacfb351ac55116522d"
 RDEPENDS:${PN} += "ruby-gem-connection-pool"
