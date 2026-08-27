@@ -1,0 +1,3 @@
+inherit ruby-gem
+GEM_NAME = "rack"
+SRC_URI[sha256sum] = "93e13e1c24f93556671d85d2d79fa228c3485815c50d7e2f265b5330c6528fb7"
