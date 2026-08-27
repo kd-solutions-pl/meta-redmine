@@ -99,7 +99,6 @@ DEPENDS += " \
     ruby-gem-rbpdf \
     ruby-gem-rbpdf-font \
     ruby-gem-redis-client \
-    ruby-gem-reline \
     ruby-gem-requestjs-rails \
     ruby-gem-roadie \
     ruby-gem-roadie-rails \
