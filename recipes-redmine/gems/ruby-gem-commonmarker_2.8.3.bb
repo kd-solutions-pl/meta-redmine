@@ -1,10 +1,9 @@
 inherit ruby-gem rust-common
 GEM_NAME = "commonmarker"
-SRC_URI[sha256sum] = "d33ea93f3daf58ad68953c750c7bdeedb0ff6b9c36c86799ae5683fedc7cb8e1"
+SRC_URI[sha256sum] = "711abde5015289f657b28a4edadd77d14f2c898d824595be6cd7018664cc8d7a"
 
 DEPENDS += "ruby-gem-rb-sys ruby-gem-rake-compiler-dock cargo-native rust-native clang-native perl-native libstd-rs"
 GEM_INSTALL_ARGS += "--force"
-RDEPENDS:${PN} += "ruby-gem-rb-sys ruby-gem-rake-compiler-dock"
 CFLAGS:append = " -std=gnu17 -Wno-error=incompatible-pointer-types -Wno-incompatible-pointer-types"
 INSANE_SKIP:${PN} += "already-stripped"
 
@@ -56,3 +55,4 @@ EOF
 do_install:append() {
     rm -rf ${D}${libdir}/ruby/gems/gems/${GEM_NAME}-${PV}/ext/commonmarker/target
 }
+RDEPENDS:${PN} += "ruby-gem-rake-compiler-dock ruby-gem-rb-sys"
