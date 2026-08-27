@@ -100,7 +100,6 @@ DEPENDS += " \
     ruby-gem-rails-dom-testing \
     ruby-gem-rails-html-sanitizer \
     ruby-gem-railties \
-    ruby-gem-rake \
     ruby-gem-rake-compiler-dock \
     ruby-gem-rb-sys \
     ruby-gem-rbpdf \
