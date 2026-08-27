@@ -66,7 +66,6 @@ DEPENDS += " \
     ruby-gem-i18n \
     ruby-gem-importmap-rails \
     ruby-gem-io-console \
-    ruby-gem-irb \
     ruby-gem-json \
     ruby-gem-logger \
     ruby-gem-loofah \
