@@ -17,7 +17,7 @@ SRC_URI = "https://www.redmine.org/releases/redmine-${PV}.tar.gz \
            file://additional_environment.rb \
            file://strip-gemspec-native-extensions.rb \
            "
-SRC_URI[sha256sum] = "61db3008c7fd18a3afc559ed656fd38fdf8df8220ac69598b319095183190b7a"
+SRC_URI[sha256sum] = "68538b4310fa50ac79a521045cb55fe3bcffed5c1562d6844cf90e66e7619209"
 
 inherit systemd useradd
 
@@ -30,6 +30,7 @@ DEPENDS += " \
     ruby-native \
     ruby \
     imagemagick \
+    ruby-gem-action-text-trix \
     ruby-gem-actioncable \
     ruby-gem-actionmailbox \
     ruby-gem-actionmailer \
@@ -48,7 +49,6 @@ DEPENDS += " \
     ruby-gem-benchmark \
     ruby-gem-bigdecimal \
     ruby-gem-builder \
-    ruby-gem-cgi \
     ruby-gem-chunky-png \
     ruby-gem-commonmarker \
     ruby-gem-concurrent-ruby \
@@ -59,14 +59,16 @@ DEPENDS += " \
     ruby-gem-date \
     ruby-gem-doorkeeper \
     ruby-gem-doorkeeper-i18n \
+    ruby-gem-drb \
+    ruby-gem-erb \
     ruby-gem-erubi \
     ruby-gem-globalid \
-    ruby-gem-html-pipeline \
     ruby-gem-htmlentities \
     ruby-gem-i18n \
     ruby-gem-importmap-rails \
     ruby-gem-io-console \
     ruby-gem-irb \
+    ruby-gem-json \
     ruby-gem-logger \
     ruby-gem-loofah \
     ruby-gem-mail \
@@ -83,10 +85,14 @@ DEPENDS += " \
     ruby-gem-nio4r \
     ruby-gem-nokogiri \
     ruby-gem-ostruct \
+    ruby-gem-pg \
+    ruby-gem-pp \
+    ruby-gem-prettyprint \
+    ruby-gem-prism \
     ruby-gem-propshaft \
     ruby-gem-public-suffix \
     ruby-gem-puma \
-    ruby-gem-pg \
+    ruby-gem-racc \
     ruby-gem-rack \
     ruby-gem-rack-session \
     ruby-gem-rack-test \
@@ -95,11 +101,15 @@ DEPENDS += " \
     ruby-gem-rails-dom-testing \
     ruby-gem-rails-html-sanitizer \
     ruby-gem-railties \
+    ruby-gem-rake \
+    ruby-gem-rake-compiler-dock \
     ruby-gem-rb-sys \
     ruby-gem-rbpdf \
     ruby-gem-rbpdf-font \
+    ruby-gem-rbs \
     ruby-gem-rdoc \
     ruby-gem-redis-client \
+    ruby-gem-reline \
     ruby-gem-requestjs-rails \
     ruby-gem-roadie \
     ruby-gem-roadie-rails \
@@ -112,19 +122,18 @@ DEPENDS += " \
     ruby-gem-securerandom \
     ruby-gem-sidekiq \
     ruby-gem-sqlite3 \
+    ruby-gem-ssrf-filter \
     ruby-gem-stimulus-rails \
+    ruby-gem-strscan \
     ruby-gem-thor \
     ruby-gem-timeout \
+    ruby-gem-tsort \
     ruby-gem-tzinfo \
+    ruby-gem-uri \
     ruby-gem-useragent \
     ruby-gem-websocket-driver \
     ruby-gem-websocket-extensions \
     ruby-gem-zeitwerk \
-    ruby-gem-with-advisory-lock \
-    ruby-gem-sqlite3 \
-    ruby-gem-net-ldap \
-    ruby-gem-mini-magick \
-    ruby-gem-pg \
 "
 
 RDEPENDS:${PN} = " \
@@ -140,22 +149,24 @@ RDEPENDS:${PN} = " \
     ruby-gem-csv \
     ruby-gem-doorkeeper \
     ruby-gem-doorkeeper-i18n \
-    ruby-gem-html-pipeline \
     ruby-gem-i18n \
     ruby-gem-importmap-rails \
     ruby-gem-mail \
     ruby-gem-marcel \
     ruby-gem-mini-magick \
     ruby-gem-mini-mime \
+    ruby-gem-net-imap \
+    ruby-gem-net-ldap \
+    ruby-gem-net-pop \
+    ruby-gem-net-smtp \
     ruby-gem-nokogiri \
     ruby-gem-ostruct \
+    ruby-gem-pg \
     ruby-gem-propshaft \
     ruby-gem-puma \
-    ruby-gem-pg \
     ruby-gem-rack \
     ruby-gem-rails \
     ruby-gem-rbpdf \
-    ruby-gem-redis-client \
     ruby-gem-requestjs-rails \
     ruby-gem-roadie-rails \
     ruby-gem-rotp \
@@ -164,14 +175,8 @@ RDEPENDS:${PN} = " \
     ruby-gem-rubyzip \
     ruby-gem-sanitize \
     ruby-gem-sidekiq \
-    ruby-gem-stimulus-rails \
-    ruby-gem-net-imap \
-    ruby-gem-net-pop \
-    ruby-gem-net-smtp \
-    ruby-gem-with-advisory-lock \
     ruby-gem-sqlite3 \
-    ruby-gem-net-ldap \
-    ruby-gem-mini-magick \
+    ruby-gem-stimulus-rails \
 "
 
 do_configure[noexec] = "1"
