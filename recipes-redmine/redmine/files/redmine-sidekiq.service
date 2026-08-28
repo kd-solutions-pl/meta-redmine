@@ -2,7 +2,8 @@
 Description=Redmine Sidekiq worker
 Wants=network-online.target
 After=network-online.target valkey.service redmine-storage-prepare.service redmine.service
-Requires=valkey.service redmine-storage-prepare.service
+Requires=redmine.service valkey.service redmine-storage-prepare.service
+PartOf=redmine.service
 RequiresMountsFor=/data
 
 [Service]

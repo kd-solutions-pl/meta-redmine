@@ -1,0 +1,3 @@
+inherit ruby-gem
+GEM_NAME = "json"
+SRC_URI[sha256sum] = "1f1d3b7cf2b3ba1a69beca0bb6db13d5438b80bff3cd54cdaaa620b9b07c1c6a"

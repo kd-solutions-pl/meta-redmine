@@ -1,4 +1,0 @@
-inherit ruby-gem
-GEM_NAME = "io-console"
-SRC_URI[sha256sum] = "cd6a9facbc69871d69b2cb8b926fc6ea7ef06f06e505e81a64f14a470fddefa2"
-

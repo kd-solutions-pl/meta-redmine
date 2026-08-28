@@ -4,6 +4,8 @@ set -eu
 . /etc/default/redmine
 
 RAILS="${REDMINE_HOME}/bin/rails"
+PACKAGED_VERSION_FILE="/usr/share/redmine/version"
+INSTALLED_VERSION_FILE="${REDMINE_WRITABLE_DIR}/.installed-version"
 
 roles_table_exists() {
     /usr/bin/ruby "${RAILS}" runner '
@@ -17,13 +19,47 @@ roles_table_exists() {
     '
 }
 
+database_is_empty() {
+    /usr/bin/ruby "${RAILS}" runner '
+        connection = ActiveRecord::Base.connection
+        exit(connection.data_source_exists?("roles") ? 1 : 0)
+    '
+}
+
+clear_asset_data() {
+    for directory in \
+        "${REDMINE_WRITABLE_DIR}/public/assets" \
+        "${REDMINE_WRITABLE_DIR}/tmp/cache"; do
+        [ -d "${directory}" ] || continue
+        find "${directory}" -mindepth 1 -maxdepth 1 -exec rm -rf -- {} +
+    done
+}
+
+ensure_assets_current() {
+    packaged_version="$(cat "${PACKAGED_VERSION_FILE}")"
+    installed_version=""
+    if [ -s "${INSTALLED_VERSION_FILE}" ]; then
+        installed_version="$(cat "${INSTALLED_VERSION_FILE}")"
+    fi
+
+    if [ "${installed_version}" = "${packaged_version}" ] && \
+       [ -e "${REDMINE_WRITABLE_DIR}/public/assets/.manifest.json" ]; then
+        return 0
+    fi
+
+    echo "Preparing Redmine assets for version ${packaged_version}"
+    clear_asset_data
+    /usr/bin/ruby "${RAILS}" tmp:cache:clear
+    /usr/bin/ruby "${RAILS}" assets:precompile
+
+    installed_version_tmp="${INSTALLED_VERSION_FILE}.tmp.$$"
+    printf '%s\n' "${packaged_version}" >"${installed_version_tmp}"
+    mv "${installed_version_tmp}" "${INSTALLED_VERSION_FILE}"
+}
+
 if [ ! -x "${RAILS}" ]; then
     echo "Missing Redmine Rails launcher: ${RAILS}" >&2
     exit 1
-fi
-
-if [ -d "${REDMINE_HOME}/public/assets.dist" ] && [ ! -e "${REDMINE_WRITABLE_DIR}/public/assets/.manifest.json" ]; then
-    cp -a "${REDMINE_HOME}/public/assets.dist/." "${REDMINE_WRITABLE_DIR}/public/assets/"
 fi
 
 if [ -s "${REDMINE_HOME}/Gemfile.lock.dist" ]; then
@@ -43,20 +79,12 @@ if [ ! -s config/initializers/secret_token.rb ]; then
     /usr/bin/ruby "${RAILS}" generate_secret_token
 fi
 
-DB_WAS_EMPTY=0
-if [ ! -s "${REDMINE_WRITABLE_DIR}/db/redmine.sqlite3" ]; then
-    DB_WAS_EMPTY=1
+DB_NEEDS_DEFAULTS=0
+if database_is_empty; then
+    DB_NEEDS_DEFAULTS=1
 fi
-DB_NEEDS_DEFAULTS="${DB_WAS_EMPTY}"
 
 /usr/bin/ruby "${RAILS}" db:migrate
-if ! roles_table_exists; then
-    failed_db="${REDMINE_WRITABLE_DIR}/db/redmine.sqlite3.failed-$(date +%Y%m%d%H%M%S)"
-    mv "${REDMINE_WRITABLE_DIR}/db/redmine.sqlite3" "${failed_db}" 2>/dev/null || true
-    DB_NEEDS_DEFAULTS=1
-    echo "Redmine migration did not create the roles table; moved incomplete database to ${failed_db} and retrying" >&2
-    /usr/bin/ruby "${RAILS}" db:migrate
-fi
 
 if ! roles_table_exists; then
     echo "Redmine database schema is incomplete: roles table is missing" >&2
@@ -67,6 +95,4 @@ if [ "${DB_NEEDS_DEFAULTS}" -eq 1 ]; then
     /usr/bin/ruby "${RAILS}" redmine:load_default_data
 fi
 
-if [ ! -e "${REDMINE_WRITABLE_DIR}/public/assets/.manifest.json" ]; then
-    /usr/bin/ruby "${RAILS}" assets:precompile
-fi
+ensure_assets_current

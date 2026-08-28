@@ -1,0 +1,4 @@
+inherit ruby-gem
+GEM_NAME = "rackup"
+SRC_URI[sha256sum] = "6c79c26753778e90983761d677a48937ee3192b3ffef6bc963c0950f94688868"
+RDEPENDS:${PN} += "ruby-gem-rack"
