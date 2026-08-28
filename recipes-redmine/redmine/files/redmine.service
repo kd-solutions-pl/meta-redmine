@@ -1,12 +1,13 @@
 [Unit]
 Description=Redmine
 Wants=network-online.target
-After=network-online.target valkey.service redmine-storage-prepare.service
-Requires=valkey.service redmine-storage-prepare.service
+After=network-online.target postgresql.service valkey.service redmine-storage-prepare.service
+Requires=postgresql.service valkey.service redmine-storage-prepare.service
 RequiresMountsFor=/data
 
 [Service]
 Type=simple
+TimeoutStartSec=15min
 User=redmine
 Group=redmine
 WorkingDirectory=/opt/redmine

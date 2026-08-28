@@ -232,6 +232,7 @@ do_install() {
     install -m 0644 ${UNPACKDIR}/redmine.env ${D}${sysconfdir}/default/redmine
 
     install -d ${D}${datadir}/redmine/defaults
+    printf '%s\n' '${PV}' >${D}${datadir}/redmine/version
     install -m 0644 ${UNPACKDIR}/database.yml ${D}${datadir}/redmine/defaults/database.yml
     install -m 0644 ${UNPACKDIR}/configuration.yml ${D}${datadir}/redmine/defaults/configuration.yml
     install -m 0644 ${UNPACKDIR}/Gemfile.local ${D}${REDMINE_HOME}/Gemfile.local
