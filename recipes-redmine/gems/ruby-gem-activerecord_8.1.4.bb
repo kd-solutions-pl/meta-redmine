@@ -1,4 +1,4 @@
 inherit ruby-gem
 GEM_NAME = "activerecord"
-SRC_URI[sha256sum] = "0a2fb6c28f4938f6b013a3a549bec0a7e37d535f3dc8990e804bcc3258c0403b"
+SRC_URI[sha256sum] = "3b4957ea7f246c9231bd7faa909312eac03a9101aaf87977b6c52733ff00b04f"
 RDEPENDS:${PN} += "ruby-gem-activemodel ruby-gem-activesupport ruby-gem-timeout"
