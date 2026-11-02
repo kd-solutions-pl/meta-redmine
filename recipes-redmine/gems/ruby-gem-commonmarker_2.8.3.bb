@@ -1,6 +1,19 @@
-inherit ruby-gem rust-common
+inherit ruby-gem cargo_common
 GEM_NAME = "commonmarker"
 SRC_URI[sha256sum] = "711abde5015289f657b28a4edadd77d14f2c898d824595be6cd7018664cc8d7a"
+
+require ruby-gem-commonmarker-crates.inc
+
+# ruby-gem skips configure, but Cargo needs its local source configuration.
+python __anonymous() {
+    d.delVarFlag("do_configure", "noexec")
+}
+do_configure() {
+    cargo_common_do_configure
+}
+
+# Native extensions are built by gem install; never fetch crates in that task.
+export CARGO_NET_OFFLINE = "true"
 
 DEPENDS += "ruby-gem-rb-sys ruby-gem-rake-compiler-dock cargo-native rust-native clang-native perl-native libstd-rs"
 GEM_INSTALL_ARGS += "--force"
