@@ -4,6 +4,8 @@ SRC_URI[sha256sum] = "711abde5015289f657b28a4edadd77d14f2c898d824595be6cd7018664
 
 require ruby-gem-commonmarker-crates.inc
 
+SRC_URI += "file://0001-bindgen-match-ruby-header-directories.patch;patchdir=${CARGO_HOME}/bitbake/rb-sys-build-0.9.128"
+
 # ruby-gem skips configure, but Cargo needs its local source configuration.
 python __anonymous() {
     d.delVarFlag("do_configure", "noexec")
@@ -15,7 +17,7 @@ do_configure() {
 # Native extensions are built by gem install; never fetch crates in that task.
 export CARGO_NET_OFFLINE = "true"
 
-DEPENDS += "ruby-gem-rb-sys ruby-gem-rake-compiler-dock cargo-native rust-native clang-native perl-native libstd-rs"
+DEPENDS += "ruby-gem-rb-sys ruby-gem-rake-compiler-dock cargo-native rust-native clang-native libstd-rs"
 GEM_INSTALL_ARGS += "--force"
 CFLAGS:append = " -std=gnu17 -Wno-error=incompatible-pointer-types -Wno-incompatible-pointer-types"
 INSANE_SKIP:${PN} += "already-stripped"
@@ -31,34 +33,6 @@ do_install:prepend() {
     export CARGO_BUILD_TARGET="${RUST_HOST_SYS}"
     export LIBCLANG_PATH="${STAGING_LIBDIR_NATIVE}"
     export BINDGEN_EXTRA_CLANG_ARGS="--sysroot=${STAGING_DIR_HOST} --target=${RUST_HOST_SYS} -std=gnu17 -I${STAGING_INCDIR}"
-    cat > ${B}/rustc-wrapper <<'EOF'
-#!/bin/sh
-for base in "$PWD/target" "$OE_COMMONMARKER_TARGET_DIR"; do
-    [ -d "$base" ] || continue
-    for bindings in $(find "$base" -path '*/build/rb-sys-*/out/bindings-*.rs' -type f); do
-        for name in \
-            FP_INT_UPWARD FP_INT_DOWNWARD FP_INT_TOWARDZERO FP_INT_TONEARESTFROMZERO FP_INT_TONEAREST \
-            FP_NAN FP_INFINITE FP_ZERO FP_SUBNORMAL FP_NORMAL
-        do
-            OE_RB_SYS_CONST="$name" perl -0pi -e 'my $name = $ENV{"OE_RB_SYS_CONST"}; my $count = 0; s/pub const \Q$name\E\s*:\s*[^;]+;\s*/++$count == 1 ? $& : ""/ge' "$bindings"
-        done
-    done
-done
-first_arg="$(basename -- "$1")"
-if [ -n "$OE_REAL_RUSTC" ] && [ "$first_arg" = "rustc" ]; then
-    shift
-    exec "$OE_REAL_RUSTC" "$@"
-fi
-if [ -n "$OE_REAL_RUSTC" ]; then
-    exec "$OE_REAL_RUSTC" "$@"
-fi
-exec "$@"
-EOF
-    chmod 0755 ${B}/rustc-wrapper
-    export OE_REAL_RUSTC="${STAGING_BINDIR_NATIVE}/rustc"
-    export OE_COMMONMARKER_TARGET_DIR="${D}${libdir}/ruby/gems/gems/${GEM_NAME}-${PV}/ext/commonmarker/target"
-    export RUSTC="${B}/rustc-wrapper"
-    unset RUSTC_WRAPPER
     eval "export CARGO_TARGET_${build_triple}_LINKER='${RUST_BUILD_CCLD}'"
     eval "export CARGO_TARGET_${host_triple}_LINKER='${RUST_TARGET_CCLD}'"
     export HOST_CC="${RUST_BUILD_CC}"
