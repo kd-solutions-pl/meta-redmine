@@ -17,7 +17,7 @@ SRC_URI = "https://www.redmine.org/releases/redmine-${PV}.tar.gz \
            file://additional_environment.rb \
            file://strip-gemspec-native-extensions.rb \
            "
-SRC_URI[sha256sum] = "68538b4310fa50ac79a521045cb55fe3bcffed5c1562d6844cf90e66e7619209"
+SRC_URI[sha256sum] = "0b6b24c033341a9d7ad52cfcfa7b1bc913c191c7a604f740d863f16249dd3c15"
 
 inherit systemd useradd
 

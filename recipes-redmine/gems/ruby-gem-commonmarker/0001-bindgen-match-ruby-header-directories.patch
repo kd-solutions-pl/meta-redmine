@@ -1,0 +1,26 @@
+From: Krzysztof Drobiński <krzysztof@kd-solutions.pl>
+Subject: [PATCH] bindings: restrict the file allowlist to Ruby header directories
+
+Matching "ruby" anywhere in a header path includes every system header
+when the build directory itself contains "ruby", as with the
+ruby-gem-commonmarker recipe. In particular, math.h contributes both
+macros and enum variants for FP_* constants, producing duplicate Rust
+definitions.
+
+Match the ruby or ruby-VERSION directory component instead. This keeps
+Ruby headers and their recursively required types without admitting
+unrelated headers based on the name of a parent build directory.
+
+Upstream-Status: Pending
+
+--- a/src/bindings.rs
++++ b/src/bindings.rs
+@@ -62,7 +62,7 @@ pub fn generate(
+     }
+ 
+     let bindings = default_bindgen(clang_args, rbconfig)
+-        .allowlist_file(".*ruby.*")
++        .allowlist_file(r".*[\\/]ruby(?:-[0-9][^\\/]*)?[\\/].*")
+         .blocklist_item("ruby_abi_version")
+         .blocklist_function("rb_tr_abi_version")
+         .blocklist_function("^__.*")

@@ -1,4 +1,4 @@
 inherit ruby-gem
 GEM_NAME = "railties"
-SRC_URI[sha256sum] = "2388a232579a00cefea4487de66c8553c3408c1300abdc6cf1799d86ffb04487"
+SRC_URI[sha256sum] = "b5e7a8e8984e33114d68af62227971960aae1e6c02bd7c9d826ffad97fff583c"
 RDEPENDS:${PN} += "bash ruby-gem-actionpack ruby-gem-activesupport ruby-gem-rackup ruby-gem-thor ruby-gem-tsort ruby-gem-zeitwerk"
